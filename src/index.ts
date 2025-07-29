@@ -13,6 +13,7 @@ import { search as ddgSearch } from 'duck-duck-scrape';
 import fs from 'fs/promises';
 import path from 'path';
 import os from 'os';
+import { searchMetatag } from '../../mcp-shared-utils/metatags.js';
 
 // Schema for search parameters - matches the built-in web_search
 const SearchParamsSchema = z.object({
@@ -227,7 +228,7 @@ ${formatted}
       tools: [
         {
           name: 'web_search',
-          description: 'Search the web with automatic usage tracking (drop-in replacement for built-in web_search)',
+          description: '💡 Architecture Check First! Try Master Architecture Index or project ARCHITECTURE.md files before web search. Search the web with automatic usage tracking (drop-in replacement for built-in web_search)',
           inputSchema: {
             type: 'object',
             properties: {
@@ -241,7 +242,7 @@ ${formatted}
         },
         {
           name: 'tracked_search',
-          description: 'Enhanced web search with more options and automatic usage tracking',
+          description: '💡 Architecture Check First! Enhanced web search with more options and automatic usage tracking. Consider checking Master Architecture Index or project docs first.',
           inputSchema: {
             type: 'object',
             properties: {
@@ -319,12 +320,14 @@ ${formatted}
           }
           
           const formatted = this.formatSearchResults(searchResults);
+          const apiUsed = params.api === 'duckduckgo' ? 'DuckDuckGo' : 'Brave';
+          const wrappedResults = searchMetatag(formatted, params.query, `Search API: ${apiUsed}`);
 
           return {
             content: [
               {
                 type: 'text',
-                text: formatted,
+                text: wrappedResults,
               },
             ],
           };
