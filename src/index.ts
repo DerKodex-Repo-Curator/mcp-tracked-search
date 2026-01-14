@@ -283,6 +283,14 @@ ${formatted}
             properties: {},
           },
         },
+        {
+          name: 'help',
+          description: 'Get comprehensive documentation for all tracked-search functions',
+          inputSchema: {
+            type: 'object',
+            properties: {},
+          },
+        }
       ],
     }));
 
@@ -367,6 +375,120 @@ ${formatted}
               {
                 type: 'text',
                 text: JSON.stringify(stats, null, 2),
+              },
+            ],
+          };
+        } else if (name === 'help') {
+          const helpText = `
+# 🔍 Tracked Search - Web Search with Usage Analytics
+
+## Purpose
+Drop-in replacement for web_search with automatic usage tracking. Provides the same search functionality while monitoring search patterns and usage statistics.
+
+## 🏗️ Architecture Check First!
+Try Master Architecture Index or project ARCHITECTURE.md files before web search. Consider checking Master Architecture Index or project docs first.
+
+## Available Tools
+
+### web_search
+Drop-in replacement for built-in web_search with automatic usage tracking:
+- **query**: Search query (required)
+- **api**: Which search API to use (brave | duckduckgo, default: brave)
+- **count**: Number of results (1-20, default: 10)
+- **freshness**: Result freshness (24h | 7d | 30d | all)
+- **offset**: Pagination offset (default: 0)
+- Returns search results in same format as built-in web_search
+- Automatically tracks usage statistics
+
+### tracked_search
+Enhanced web search with more options and automatic usage tracking:
+- **query**: Search query (required)
+- **api**: Which search API to use (brave | duckduckgo, default: brave)
+- **count**: Number of results (1-20, default: 10)
+- **freshness**: Result freshness (24h | 7d | 30d | all)
+- **offset**: Pagination offset (default: 0)
+- Consider checking Master Architecture Index or project docs first
+- Returns enhanced search results with usage tracking
+
+### search_usage
+Get current search usage statistics:
+- No parameters required
+- Returns usage statistics including daily and monthly counts
+- Shows search patterns and API usage breakdown
+
+## Search APIs
+
+### Brave Search (Default)
+- High-quality search results
+- Fast response times
+- Good coverage of recent content
+- Requires BRAVE_API_KEY environment variable
+
+### DuckDuckGo
+- Privacy-focused search
+- No API key required
+- Good alternative when Brave is unavailable
+- May have different result rankings
+
+## Usage Tracking Features
+
+### Automatic Statistics
+- **Daily Counts**: Searches performed each day
+- **Monthly Totals**: Monthly search volume
+- **API Breakdown**: Usage by search provider
+- **Query Patterns**: Insights into search behavior
+
+### Benefits
+- **Usage Monitoring**: Track search patterns over time
+- **API Management**: Monitor which search providers are used
+- **Performance Insights**: Understand search efficiency
+- **Resource Planning**: Plan for search API limits
+
+## Common Workflows
+
+### Drop-in Web Search Replacement
+Use web_search with query parameter to get search results with automatic usage tracking.
+
+### Enhanced Search with Options
+Use tracked_search with additional parameters like api, count, and freshness for more control.
+
+### Usage Analysis
+Use search_usage to get current statistics and monitor search patterns.
+
+## Architecture Integration
+
+### Before Searching
+1. **Check Master Architecture Index** for system overviews
+2. **Review project ARCHITECTURE.md** files for specific documentation
+3. **Use internal documentation** when available
+4. **Search external sources** as last resort
+
+### Best Practices
+- **Start Internal**: Check existing documentation first
+- **Targeted Queries**: Use specific, focused search terms
+- **Fresh Content**: Use freshness filters for recent information
+- **Monitor Usage**: Check search_usage periodically
+
+## Configuration
+
+### Environment Variables
+- **BRAVE_API_KEY**: Required for Brave Search API
+- **Fallback**: DuckDuckGo used when Brave API unavailable
+
+### Error Handling
+- Graceful fallback between search APIs
+- Comprehensive error messages for debugging
+- Usage tracking continues even when searches fail
+- Clear feedback on API availability
+
+The tracked search server provides transparent search functionality with valuable usage insights while maintaining full compatibility with existing search workflows.
+`;
+          
+          return {
+            content: [
+              {
+                type: 'text',
+                text: helpText,
               },
             ],
           };
