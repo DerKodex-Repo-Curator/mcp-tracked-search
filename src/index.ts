@@ -313,7 +313,7 @@ ${formatted}
         if (name === 'web_search' || name === 'tracked_search') {
           // Parse arguments based on which tool was called
           const params = name === 'web_search' 
-            ? { ...SearchParamsSchema.parse(args), api: 'brave' as const } // Default to Brave for web_search
+            ? { ...SearchParamsSchema.parse(args), api: 'duckduckgo' as const } // Default to DuckDuckGo (Brave plan inactive; flip to 'brave' when restored)
             : TrackedSearchParamsSchema.parse(args);
           
           // Only track usage for Brave API
