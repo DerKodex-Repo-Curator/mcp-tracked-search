@@ -185,25 +185,37 @@ class TrackedSearchServer {
 
   private async performDuckDuckGoSearch(query: string, options: any = {}): Promise<any> {
     try {
-      const searchResults = await ddgSearch(query, {
-        safeSearch: 0, // 0 = moderate, 1 = strict, -1 = off
+      const resp = await fetch('https://html.duckduckgo.com/html/?q=' + encodeURIComponent(query), {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+          'Accept': 'text/html,application/xhtml+xml',
+          'Accept-Language': 'en-US,en;q=0.9',
+        },
       });
-      
-      // Take only the requested number of results
-      const limitedResults = searchResults.results.slice(0, options.count || 10);
-      
-      // Convert DuckDuckGo format to match Brave format for consistency
-      return {
-        web: {
-          results: limitedResults.map((result: any) => ({
-            title: result.title,
-            url: result.url,
-            description: result.description,
-          }))
-        }
-      };
+      const html = await resp.text();
+      const strip = (s: string): string => s.replace(/<[^>]+>/g, '').replace(/&amp;/g, '&').replace(/&#x27;/g, "'").replace(/&#x2F;/g, '/').replace(/&quot;/g, '"').replace(/&lt;/g, '<').replace(/&gt;/g, '>').trim();
+      const linkRe = /<a[^>]*class="result__a"[^>]*href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/g;
+      const snipRe = /<a[^>]*class="result__snippet"[^>]*>([\s\S]*?)<\/a>/g;
+      const snips: string[] = [];
+      let sm: RegExpExecArray | null;
+      while ((sm = snipRe.exec(html)) !== null) { snips.push(strip(sm[1])); }
+      const results: any[] = [];
+      const limit = options.count || 10;
+      let m: RegExpExecArray | null;
+      let i = 0;
+      while ((m = linkRe.exec(html)) !== null && results.length < limit) {
+        let url = m[1];
+        const dec = url.match(/uddg=([^&]+)/);
+        if (!dec) { continue; }
+        try { url = decodeURIComponent(dec[1]); } catch (e) {}
+        if (url.indexOf('y.js') !== -1 || url.indexOf('ad_provider') !== -1 || url.indexOf('ad_domain') !== -1) { continue; }
+        if (url.indexOf('//') === 0) { url = 'https:' + url; }
+        results.push({ title: strip(m[2]), url: url, description: snips[i] || '' });
+        i++;
+      }
+      return { web: { results } };
     } catch (error) {
-      throw new Error(`DuckDuckGo search error: ${error}`);
+      throw new Error('DuckDuckGo search error: ' + error);
     }
   }
 
@@ -325,6 +337,11 @@ ${formatted}
             searchResults = await this.performDuckDuckGoSearch(params.query, params);
           } else {
             searchResults = await this.performBraveSearch(params.query, params);
+            const _hasWeb = searchResults && searchResults.web && searchResults.web.results && searchResults.web.results.length;
+            if (!_hasWeb) {
+              console.error('[AUTO-FALLBACK] Brave returned no results; using DuckDuckGo');
+              try { searchResults = await this.performDuckDuckGoSearch(params.query, params); params.api = 'duckduckgo'; } catch (e) { console.error('DDG fallback failed:', e); }
+            }
           }
           
           const formatted = this.formatSearchResults(searchResults);
