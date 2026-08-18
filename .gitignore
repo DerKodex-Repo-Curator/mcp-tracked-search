@@ -105,3 +105,6 @@ development.json
 *.tmp
 *.temp
 .cache/
+
+# editor backup copies (git is the backup)
+*.bak-*
