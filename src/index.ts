@@ -296,7 +296,7 @@ ${formatted}
           },
         },
         {
-          name: 'help',
+          name: 'search_help',
           description: 'Get comprehensive documentation for all tracked-search functions',
           inputSchema: {
             type: 'object',
@@ -395,7 +395,7 @@ ${formatted}
               },
             ],
           };
-        } else if (name === 'help') {
+        } else if (name === 'search_help') {
           const helpText = `
 # 🔍 Tracked Search - Web Search with Usage Analytics
 
